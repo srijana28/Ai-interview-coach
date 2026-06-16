@@ -1,0 +1,11 @@
+langchain
+langchain-core
+langchain-google-genai
+langchain-community
+langchain-text-splitters
+chromadb
+python-dotenv
+pydantic
+rich
+pydantic-settings
+streamlit>=1.30.0 
