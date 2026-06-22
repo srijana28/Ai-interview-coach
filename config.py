@@ -31,13 +31,28 @@ class Settings(BaseSettings):
         extra = "ignore"  # Ignore other env variables in the system
 
     def __init__(self, **data):
-        super().__init__(**data)
-        if self.google_api_key is None:
-            self.google_api_key = (
-                os.getenv("GEMINI_API_KEY")
-                or os.getenv("GOOGLE_API_KEY")
-                or os.getenv("OPENAI_API_KEY")
-            )
+    def _resolve_google_api_key(self) -> Optional[str]:
+        """
+        Resolve the API key in this order:
+        1. Streamlit Cloud secrets (st.secrets)
+        2. Local .env / environment variables
+        """
+        # Streamlit Cloud
+        try:
+            secrets = st.secrets
+            for key in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "OPENAI_API_KEY"):
+                value = secrets.get(key)
+                if value:
+                    return str(value)
+        except Exception:
+            pass
+
+        # Local development
+        return (
+            os.getenv("GEMINI_API_KEY")
+            or os.getenv("GOOGLE_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
+        )
 
     # Interview settings
     max_questions: int = 5
